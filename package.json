@@ -9,9 +9,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@api/climacell-docs": "file:.api/apis/climacell-docs",
     "@polygon.io/client-js": "^7.3.2",
     "express": "^4.19.2",
+    "pg": "^8.11.5",
     "timers-promises": "^1.0.1"
   }
 }

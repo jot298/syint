@@ -1,6 +1,6 @@
 const express = require("express");
 const timers = require("timers-promises");
-const sdk = require("@api/climacell-docs");
+const { Client } = require('pg');
 
 const options = { method: "GET", headers: { accept: "application/json" } };
 
@@ -15,6 +15,8 @@ const loadData = async () => {
       .then((response) => {
         console.log("Current Weatherdata:");
         console.log(response);
+
+        save(response);
       })
       .catch((err) => console.error(err));
 
@@ -22,6 +24,19 @@ const loadData = async () => {
     await timers.setTimeout(20000);
   }
 };
+
+const save = async (response) => {
+  // docker run -e POSTGRES_PASSWORD=secret -d -p 5432:5432 postgres
+  const client = new Client({
+    user: 'postgres',
+    password: 'secret',
+    port: 5432,
+  });
+  await client.connect();
+  const res = await client.query('SELECT $1::text as connected', ['Connection to postgres successful!']);
+  console.log(res.rows[0].connected);
+  await client.end();
+}
 
 const sendData = async () => {
   console.log("Starting endless loop: ");
@@ -40,15 +55,6 @@ var current_data = [];
 
 app.listen(PORT, () => {
   console.log("Server Listening on PORT:", PORT);
-});
-
-app.get("/status", (request, response) => {
-  const status = {
-    Stock: "BTC",
-    Price: 12.99,
-  };
-
-  response.send(status);
 });
 
 loadData();
