@@ -119,7 +119,7 @@ app.listen(PORT, () => {
   console.log("Server Listening on PORT:", PORT);
 });
 
-app.get("/weather_vienna", async (req, res) => {
+app.get("/locations", async (req, res) => {
   const client = new Client({
     user: "postgres",
     password: "secret",
@@ -127,13 +127,55 @@ app.get("/weather_vienna", async (req, res) => {
   });
   await client.connect();
   const query = {
-    text: "SELECT * FROM weather_data WHERE place = 'Vienna' ORDER BY created_at DESC LIMIT 1;",
+    text: "SELECT DISTINCT ON (place) * FROM weather_data ORDER BY created_at DESC LIMIT 100;",
     values: [],
   };
   const resp = await client.query(query);
   await client.end();
 
-  res.json(resp.rows[0]);
+  res.json(resp.rows);
+});
+
+app.get("/locations/:locationId/temperatures", async (req, res) => {
+  const client = new Client({
+    user: "postgres",
+    password: "secret",
+    port: 5432,
+  });
+  await client.connect();
+  const location = req.params.locationId;
+  const period = req.query.period ? req.query.period : "7d";
+
+  const response_to_send = {
+    id: "1",
+    name: location,
+    temperatures: [],
+  };
+
+  var querystring = "";
+
+  switch (period) {
+    case "1h":
+      querystring =
+        "SELECT DISTINCT ON (created_at) created_at as timestamp, temperature FROM weather_data WHERE place = '" +
+        location +
+        "' AND created_at >= NOW() - INTERVAL '1' hour ORDER BY created_at DESC;";
+    case "24h":
+
+    case "7d":
+
+    case "1m":
+  }
+
+  const query = {
+    text: querystring,
+    values: [],
+  };
+  const resp = await client.query(query);
+  response_to_send.temperatures = resp.rows;
+  await client.end();
+
+  res.json(response_to_send);
 });
 
 loadData();
