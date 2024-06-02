@@ -1,0 +1,65 @@
+/*allgemeines Texte styling*/
+main {
+  min-height: calc(
+    100vh - 90px
+  ); /*viewport height -footer height -navbar height - main margin-bottom*/
+}
+
+main .container {
+  padding-left: 5%;
+  padding-right: 5%;
+}
+
+.btn-primary {
+  background-color: #7d1a9b;
+  border-color: #7d1a9b;
+}
+
+.btn-primary:active , .btn-primary:focus-visible {
+  background-color: #ad27d6 !important;
+  border-color: #ad27d6 !important;
+  box-shadow: 0 0 0 0.25rem rgba(173, 39, 214, 0.5);
+}
+
+.btn-primary:hover {
+  background-color: #ad27d6 !important;
+  border-color: #ad27d6 !important;
+}
+
+.form-select:focus {
+  box-shadow: 0 0 0 0.25rem rgba(173, 39, 214, 0.5);
+}
+
+#pageName {
+  font-size: 35px;
+  font-weight: bold;
+  margin: 0;
+  background-color: #30043e;
+  height: 65px;
+  max-width: 100%;
+  color: whitesmoke;
+  display: flex;
+  align-items: center;
+}
+
+nav.navbar {
+  height: 90px;
+  max-width: 100%;
+  background-color: #1c0125 !important;
+}
+
+.nav-item, .dropdown *{
+  background-color: #1c0125 !important;
+}
+
+#temperatureData *, #locationsList *{
+  margin-top: 15px;
+}
+
+#stats .card-body {
+  margin-top: 0;
+}
+
+#graph {
+  margin-bottom: 20px;
+}
