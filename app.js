@@ -124,13 +124,16 @@ app.get("/locations", async (req, res) => {
   });
   await client.connect();
   const query = {
-    text: "SELECT DISTINCT ON (place) * FROM weather_data ORDER BY place DESC LIMIT 100;",
+    text: "SELECT DISTINCT ON (place) place as name, * FROM weather_data ORDER BY place DESC LIMIT 100;",
     values: [],
   };
   const resp = await client.query(query);
   await client.end();
+  var resp_to_send = {
+    data: resp.rows,
+  };
 
-  res.json(resp.rows);
+  res.json(resp_to_send);
 });
 
 app.get("/locations/:locationId/temperatures", async (req, res) => {
