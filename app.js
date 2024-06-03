@@ -17,8 +17,7 @@ const loadData = async () => {
     fetch(fetch_api, options)
       .then((response) => response.json())
       .then((response) => {
-        console.log("Current Weatherdata Graz:");
-        console.log(response);
+        console.log("Fetched Graz Weather, saving:");
         save(response);
       })
       .catch((err) => console.error(err));
@@ -32,8 +31,7 @@ const loadData = async () => {
     fetch(fetch2_api, options)
       .then((response) => response.json())
       .then((response) => {
-        console.log("Current Weatherdata Vienna:");
-        console.log(response);
+        console.log("Fetched Vienna Weather, saving:");
         save(response);
       })
       .catch((err) => console.error(err));
@@ -74,7 +72,6 @@ const save = async (response) => {
 };
 
 const sendData = async () => {
-  console.log("Starting endless loop: ");
   while (true) {
     await timers.setTimeout(18000);
     // docker run -e POSTGRES_PASSWORD=secret -d -p 5432:5432 postgres
@@ -89,8 +86,7 @@ const sendData = async () => {
       values: [],
     };
     const res = await client.query(query);
-    console.log(res.rows[0]);
-    console.log("Successfully Saved dataset");
+    console.log("Fetched Graz Data, sending via Post");
 
     await client.end();
     const url = config.WEBHOOK_URL;
@@ -127,8 +123,18 @@ app.get("/locations", async (req, res) => {
     text: "SELECT DISTINCT ON (place) place as name, * FROM weather_data ORDER BY place DESC LIMIT 100;",
     values: [],
   };
+
   const resp = await client.query(query);
   await client.end();
+
+  resp.rows.forEach((element) => {
+    if (element.name === "Vienna") {
+      element.id = "1";
+    } else {
+      element.id = "2";
+    }
+  });
+
   var resp_to_send = {
     data: resp.rows,
   };
@@ -147,17 +153,23 @@ app.get("/locations/:locationId/temperatures", async (req, res) => {
   const location = req.params.locationId;
   const period = req.query.period ? req.query.period : "7d";
   var name = "";
+  var name_to_display = "";
   switch (location) {
     case "1":
       name = "Vienna";
+      name_to_display = "Wien";
+      break;
     case "2":
       name = "Graz";
+      name_to_display = "Graz";
+      break;
   }
+
   const response_to_send = {
     data: [
       {
         id: location,
-        name: name,
+        name: name_to_display,
         temperatures: [],
       },
     ],
@@ -172,10 +184,22 @@ app.get("/locations/:locationId/temperatures", async (req, res) => {
         name +
         "' AND created_at >= now() - interval '1' hour ORDER BY created_at DESC;";
     case "24h":
+      querystring =
+        "SELECT DISTINCT ON (created_at) created_at as timestamp, temperature FROM weather_data WHERE place = '" +
+        name +
+        "' AND created_at >= now() - interval '24' hour ORDER BY created_at DESC;";
 
     case "7d":
+      querystring =
+        "SELECT DISTINCT ON (created_at) created_at as timestamp, temperature FROM weather_data WHERE place = '" +
+        name +
+        "' AND created_at >= now() - interval '7' day ORDER BY created_at DESC;";
 
     case "1m":
+      querystring =
+        "SELECT DISTINCT ON (created_at) created_at as timestamp, temperature FROM weather_data WHERE place = '" +
+        name +
+        "' AND created_at >= now() - interval '30' day ORDER BY created_at DESC;";
   }
 
   const query = {

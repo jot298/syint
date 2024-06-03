@@ -45,12 +45,12 @@ function loadTemperatureData() {
       new Chart(document.getElementById("temperatureCanvas"), {
         type: "line",
         options: {
-          scales: {
+          /* scales: {
             y: {
               min: Math.floor(formattedTemperatureData["min"]),
               max: Math.ceil(parseFloat(formattedTemperatureData["max"])),
             },
-          },
+          },*/
         },
         data: {
           labels: formattedTemperatureData["graphLabels"],
