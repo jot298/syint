@@ -2,6 +2,9 @@ const express = require("express");
 const timers = require("timers-promises");
 const { Client } = require("pg");
 const config = require("./config.json");
+var cors = require("cors");
+
+const loadnew = false;
 
 const options = { method: "GET", headers: { accept: "application/json" } };
 
@@ -103,6 +106,8 @@ const sendData = async () => {
 };
 
 const app = express();
+app.use(cors());
+
 app.use(express.json());
 
 const PORT = process.env.PORT || 3000;
@@ -119,7 +124,7 @@ app.get("/locations", async (req, res) => {
   });
   await client.connect();
   const query = {
-    text: "SELECT DISTINCT ON (place) * FROM weather_data ORDER BY created_at DESC LIMIT 100;",
+    text: "SELECT DISTINCT ON (place) * FROM weather_data ORDER BY place DESC LIMIT 100;",
     values: [],
   };
   const resp = await client.query(query);
@@ -129,6 +134,7 @@ app.get("/locations", async (req, res) => {
 });
 
 app.get("/locations/:locationId/temperatures", async (req, res) => {
+  console.log("Got Request for data, resp:");
   const client = new Client({
     user: "postgres",
     password: "secret",
@@ -137,10 +143,16 @@ app.get("/locations/:locationId/temperatures", async (req, res) => {
   await client.connect();
   const location = req.params.locationId;
   const period = req.query.period ? req.query.period : "7d";
-
+  var name = "";
+  switch (location) {
+    case "1":
+      name = "Vienna";
+    case "2":
+      name = "Graz";
+  }
   const response_to_send = {
-    id: "1",
-    name: location,
+    id: location,
+    name: name,
     temperatures: [],
   };
 
@@ -150,7 +162,7 @@ app.get("/locations/:locationId/temperatures", async (req, res) => {
     case "1h":
       querystring =
         "SELECT DISTINCT ON (created_at) created_at as timestamp, temperature FROM weather_data WHERE place = '" +
-        location +
+        name +
         "' AND created_at >= now() - interval '1' hour ORDER BY created_at DESC;";
     case "24h":
 
@@ -168,7 +180,9 @@ app.get("/locations/:locationId/temperatures", async (req, res) => {
   await client.end();
 
   res.json(response_to_send);
+  console.log(response_to_send.toString());
 });
-
-loadData();
-sendData();
+if (loadnew === true) {
+  loadData();
+  sendData();
+}

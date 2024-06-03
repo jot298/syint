@@ -5,7 +5,7 @@ $(document).ready(function () {
 function loadLocations() {
   $.ajax({
     type: "GET",
-    url: "localURL/locations",
+    url: "http://localhost:3000/locations",
     cache: false,
     dataType: "json",
     success: function (response) {

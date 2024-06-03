@@ -19,7 +19,7 @@ function loadTemperatureData() {
   $.ajax({
     type: "GET",
     url:
-      "localURL/locations/" +
+      "http://127.0.0.1:3000/locations/" +
       id +
       "/temperatures?period=" +
       period,
