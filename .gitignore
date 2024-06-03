@@ -1,6 +1,6 @@
 # Config, cuz im an idiot
 config.json
-
+startup.sh
 # Logs
 logs
 *.log

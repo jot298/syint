@@ -11,11 +11,7 @@ const loadData = async () => {
       "http://api.weatherapi.com/v1/current.json?key=" +
       config.API_KEY +
       "&q=Graz&aqi=no";
-    fetch(
-      //"https://api.tomorrow.io/v4/weather/realtime?location=Vienna&apikey=CF8QTRhpprm11YkrniU6d1SeqhaQcpkP",
-      fetch_api,
-      options
-    )
+    fetch(fetch_api, options)
       .then((response) => response.json())
       .then((response) => {
         console.log("Current Weatherdata Graz:");
@@ -30,11 +26,7 @@ const loadData = async () => {
       "http://api.weatherapi.com/v1/current.json?key=" +
       config.API_KEY +
       "&q=Vienna&aqi=no";
-    fetch(
-      //"https://api.tomorrow.io/v4/weather/realtime?location=Vienna&apikey=CF8QTRhpprm11YkrniU6d1SeqhaQcpkP",
-      fetch2_api,
-      options
-    )
+    fetch(fetch2_api, options)
       .then((response) => response.json())
       .then((response) => {
         console.log("Current Weatherdata Vienna:");
