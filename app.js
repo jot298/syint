@@ -151,9 +151,13 @@ app.get("/locations/:locationId/temperatures", async (req, res) => {
       name = "Graz";
   }
   const response_to_send = {
-    id: location,
-    name: name,
-    temperatures: [],
+    data: [
+      {
+        id: location,
+        name: name,
+        temperatures: [],
+      },
+    ],
   };
 
   var querystring = "";
@@ -176,7 +180,7 @@ app.get("/locations/:locationId/temperatures", async (req, res) => {
     values: [],
   };
   const resp = await client.query(query);
-  response_to_send.temperatures = resp.rows;
+  response_to_send.data[0].temperatures = resp.rows;
   await client.end();
 
   res.json(response_to_send);
