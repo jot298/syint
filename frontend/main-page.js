@@ -94,7 +94,7 @@ function loadLocations() {
             windDirection +
             '</p><p class="card-text">Windstärke: ' +
             location["wind_speed"] +
-            ' m/s</p><a href="/location/location.html?id=' +
+            ' km/h</p><a href="/location/location.html?id=' +
             location["id"] +
             '" class="btn btn-primary">Historische Daten</a></div></div></div>'
         );
