@@ -183,24 +183,28 @@ app.get("/locations/:locationId/temperatures", async (req, res) => {
         "SELECT DISTINCT ON (created_at) created_at as timestamp, temperature FROM weather_data WHERE place = '" +
         name +
         "' AND created_at >= now() - interval '1' hour ORDER BY created_at DESC;";
+      break;
     case "24h":
       querystring =
         "SELECT DISTINCT ON (date_trunc('hour', created_at)) id, place, created_at, temperature, uv_index, wind_direction, wind_speed FROM weather_data WHERE created_at >= now() - interval '24 hours' AND place = '" +
         name +
         "' ORDER BY date_trunc('hour', created_at), created_at; ";
-
+      break;
     case "7d":
       querystring =
-        "SELECT DISTINCT ON (created_at) created_at as timestamp, temperature FROM weather_data WHERE place = '" +
+        "SELECT w.place, DATE(w.created_at), w.* FROM weather_data w WHERE w.place = '" +
         name +
-        "' AND created_at >= now() - interval '7' day ORDER BY created_at DESC;";
-
+        "'and w.created_at = (SELECT min(inner_w.created_at) FROM weather_data AS inner_w WHERE inner_w.place = w.place AND DATE(inner_w.created_at) = DATE(w.created_at) AND inner_w.created_at >= current_date - interval '7 days' AND inner_w.created_at::time >= '12:00:00') AND w.created_at >= current_date - interval '7 days' ORDER BY w.place, DATE(w.created_at);";
+      break;
     case "1m":
       querystring =
-        "SELECT DISTINCT ON (created_at) created_at as timestamp, temperature FROM weather_data WHERE place = '" +
+        "SELECT w.place, DATE(w.created_at), w.* FROM weather_data w WHERE w.place = '" +
         name +
-        "' AND created_at >= now() - interval '30' day ORDER BY created_at DESC;";
+        "'and w.created_at = (SELECT min(inner_w.created_at) FROM weather_data AS inner_w WHERE inner_w.place = w.place AND DATE(inner_w.created_at) = DATE(w.created_at) AND inner_w.created_at >= current_date - interval '30 days' AND inner_w.created_at::time >= '12:00:00') AND w.created_at >= current_date - interval '30 days' ORDER BY w.place, DATE(w.created_at);";
+      break;
   }
+  console.log(name);
+  console.log(querystring);
 
   const query = {
     text: querystring,
