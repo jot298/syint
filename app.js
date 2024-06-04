@@ -185,9 +185,9 @@ app.get("/locations/:locationId/temperatures", async (req, res) => {
         "' AND created_at >= now() - interval '1' hour ORDER BY created_at DESC;";
     case "24h":
       querystring =
-        "SELECT DISTINCT ON (created_at) created_at as timestamp, temperature FROM weather_data WHERE place = '" +
+        "SELECT DISTINCT ON (date_trunc('hour', created_at)) id, place, created_at, temperature, uv_index, wind_direction, wind_speed FROM weather_data WHERE created_at >= now() - interval '24 hours' AND place = '" +
         name +
-        "' AND created_at >= now() - interval '24' hour ORDER BY created_at DESC;";
+        "' ORDER BY date_trunc('hour', created_at), created_at; ";
 
     case "7d":
       querystring =
