@@ -4,7 +4,7 @@ const { Client } = require("pg");
 const config = require("./config.json");
 var cors = require("cors");
 
-const loadnew = false;
+const loadnew = true;
 
 const options = { method: "GET", headers: { accept: "application/json" } };
 
@@ -18,6 +18,7 @@ const loadData = async () => {
       .then((response) => response.json())
       .then((response) => {
         console.log("Fetched Graz Weather, saving:");
+        //console.log(response);
         save(response);
       })
       .catch((err) => console.error(err));
@@ -32,6 +33,7 @@ const loadData = async () => {
       .then((response) => response.json())
       .then((response) => {
         console.log("Fetched Vienna Weather, saving:");
+
         save(response);
       })
       .catch((err) => console.error(err));
@@ -65,7 +67,7 @@ const save = async (response) => {
     ],
   };
   const res = await client.query(query);
-  console.log(res.rows[0]);
+
   console.log("Successfully Saved dataset");
 
   await client.end();
@@ -186,25 +188,23 @@ app.get("/locations/:locationId/temperatures", async (req, res) => {
       break;
     case "24h":
       querystring =
-        "SELECT DISTINCT ON (date_trunc('hour', created_at)) id, place, created_at, temperature, uv_index, wind_direction, wind_speed FROM weather_data WHERE created_at >= now() - interval '24 hours' AND place = '" +
+        "SELECT DISTINCT ON (date_trunc('hour', created_at)) created_at as timestamp, temperature FROM weather_data WHERE created_at >= now() - interval '24 hours' AND place = '" +
         name +
         "' ORDER BY date_trunc('hour', created_at), created_at; ";
       break;
     case "7d":
       querystring =
-        "SELECT w.place, DATE(w.created_at), w.* FROM weather_data w WHERE w.place = '" +
+        "SELECT w.created_at as timestamp, DATE(w.created_at), w.temperature FROM weather_data w WHERE w.place = '" +
         name +
         "'and w.created_at = (SELECT min(inner_w.created_at) FROM weather_data AS inner_w WHERE inner_w.place = w.place AND DATE(inner_w.created_at) = DATE(w.created_at) AND inner_w.created_at >= current_date - interval '7 days' AND inner_w.created_at::time >= '12:00:00') AND w.created_at >= current_date - interval '7 days' ORDER BY w.place, DATE(w.created_at);";
       break;
     case "1m":
       querystring =
-        "SELECT w.place, DATE(w.created_at), w.* FROM weather_data w WHERE w.place = '" +
+        "SELECT w.created_at as timestamp, DATE(w.created_at), w.temperature FROM weather_data w WHERE w.place = '" +
         name +
         "'and w.created_at = (SELECT min(inner_w.created_at) FROM weather_data AS inner_w WHERE inner_w.place = w.place AND DATE(inner_w.created_at) = DATE(w.created_at) AND inner_w.created_at >= current_date - interval '30 days' AND inner_w.created_at::time >= '12:00:00') AND w.created_at >= current_date - interval '30 days' ORDER BY w.place, DATE(w.created_at);";
       break;
   }
-  console.log(name);
-  console.log(querystring);
 
   const query = {
     text: querystring,
