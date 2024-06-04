@@ -132,6 +132,7 @@ app.get("/locations", async (req, res) => {
   resp.rows.forEach((element) => {
     if (element.name === "Vienna") {
       element.id = "1";
+      element.name = "Wien";
     } else {
       element.id = "2";
     }
@@ -184,27 +185,30 @@ app.get("/locations/:locationId/temperatures", async (req, res) => {
       querystring =
         "SELECT DISTINCT ON (created_at) created_at as timestamp, temperature FROM weather_data WHERE place = '" +
         name +
-        "' AND created_at >= now() - interval '1' hour ORDER BY created_at DESC;";
+        "' AND created_at >= now() - interval '1' hour ORDER BY created_at ASC;";
       break;
     case "24h":
       querystring =
         "SELECT DISTINCT ON (date_trunc('hour', created_at)) created_at as timestamp, temperature FROM weather_data WHERE created_at >= now() - interval '24 hours' AND place = '" +
         name +
-        "' ORDER BY date_trunc('hour', created_at), created_at; ";
+        "' ORDER BY date_trunc('hour', created_at), created_at ASC; ";
       break;
     case "7d":
       querystring =
-        "SELECT w.created_at as timestamp, DATE(w.created_at), w.temperature FROM weather_data w WHERE w.place = '" +
+        "SELECT date_trunc('day', created_at) AS timestamp, ROUND(AVG(temperature))::INTEGER AS temperature FROM weather_data WHERE created_at > NOW() - INTERVAL '6 days' and place = '" +
         name +
-        "'and w.created_at = (SELECT min(inner_w.created_at) FROM weather_data AS inner_w WHERE inner_w.place = w.place AND DATE(inner_w.created_at) = DATE(w.created_at) AND inner_w.created_at >= current_date - interval '7 days' AND inner_w.created_at::time >= '12:00:00') AND w.created_at >= current_date - interval '7 days' ORDER BY w.place, DATE(w.created_at);";
+        "' GROUP BY timestamp ORDER BY timestamp ASC;";
+
       break;
     case "1m":
       querystring =
-        "SELECT w.created_at as timestamp, DATE(w.created_at), w.temperature FROM weather_data w WHERE w.place = '" +
+        "SELECT date_trunc('day', created_at) AS timestamp, ROUND(AVG(temperature))::INTEGER AS temperature FROM weather_data WHERE created_at > NOW() - INTERVAL '29 days' and place = '" +
         name +
-        "'and w.created_at = (SELECT min(inner_w.created_at) FROM weather_data AS inner_w WHERE inner_w.place = w.place AND DATE(inner_w.created_at) = DATE(w.created_at) AND inner_w.created_at >= current_date - interval '30 days' AND inner_w.created_at::time >= '12:00:00') AND w.created_at >= current_date - interval '30 days' ORDER BY w.place, DATE(w.created_at);";
+        "' GROUP BY timestamp ORDER BY timestamp ASC;";
+
       break;
   }
+  console.log(querystring);
 
   const query = {
     text: querystring,

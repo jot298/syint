@@ -2,9 +2,9 @@ INSERT INTO weather_data (place, created_at, temperature, uv_index, wind_directi
 SELECT
     place,
     generate_series(
-        date_trunc('hour', now() - interval '7 days'),
+        date_trunc('hour', now() - interval '30 days'),
         date_trunc('hour', now()),
-        interval '1 hour'
+        interval '2 hour'
     ) as created_at,
     ROUND(random() * 35 - 10)::numeric(5, 2) as temperature,
     floor(random() * 10)::integer as uv_index,

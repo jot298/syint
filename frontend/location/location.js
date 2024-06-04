@@ -47,8 +47,8 @@ function loadTemperatureData() {
         options: {
           scales: {
             y: {
-              min: Math.floor(formattedTemperatureData["min"])-1,
-              max: Math.ceil(parseFloat(formattedTemperatureData["max"]))+1,
+              min: Math.floor(formattedTemperatureData["min"]) - 1,
+              max: Math.ceil(parseFloat(formattedTemperatureData["max"])) + 1,
             },
           },
         },
@@ -94,7 +94,8 @@ function formatData(temperatures, period) {
       case "1m":
         graphLabels[i] = dateTime.toLocaleDateString("de-DE", {
           year: "numeric",
-          month: "long",
+          month: "numeric",
+          day: "numeric",
         });
         break;
       case "7d":
